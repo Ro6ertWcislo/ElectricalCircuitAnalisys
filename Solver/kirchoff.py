@@ -1,22 +1,11 @@
-import csv
-
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
+from Solver.reader import read_as_graph
 
 
-def read_as_graph(csv_path):
-    with open(csv_path) as csvfile:
-        G = nx.Graph()
-        data_reader = csv.reader(csvfile, delimiter=';')
-        data_reader = [(int(row[0]), int(row[1]), float(row[2])) for row in data_reader]
-        start_node, end_node, U = data_reader[0]
-        G.add_weighted_edges_from(
-            [row for row in data_reader]
-        )
-        return G, start_node, end_node, U
 
 
 class Analyzer(object):
@@ -58,7 +47,7 @@ class Analyzer(object):
         for num, edge in enumerate(self.G.edges()):
             (a, b) = edge
             y[(a, b)] = (num, 1)
-            y[(b, a)] = (num, -1)
+            y[(b, a)] = (num, -1) ##!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         y[(self.n_positive, self.n_negative)] = ("special edge", 0)
         y[(self.n_negative, self.n_positive)] = ("special edge", 0)
@@ -82,7 +71,7 @@ b = np.concatenate((b1,b2))
 a = np.vstack((a1,a2))
 
 
-y = np.linalg.lstsq(a,b)[0]
+y = np.absolute(np.linalg.lstsq(a,b)[0])
 print(y)
 for (a,b),(num,_) in x.edge_dict.items():
     if num != 'special edge':
@@ -123,7 +112,7 @@ nx.draw_shell(x.G,edge_color = colorList, width='3')
 plt.show()
 
 for node in x.G.nodes():
-    print([x.G[edge[0]][edge[1]]['weight'] for edge in x.G.edges([node])])
+    print(sum([x.G[edge[0]][edge[1]]['weight'] for edge in x.G.edges([node])]))
 
 # nx.draw(x.G,edge_color=colorList)
 # plt.savefig("simple_path.png") # save as png
